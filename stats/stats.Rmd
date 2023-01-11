@@ -1,0 +1,63 @@
+---
+title: "StatisticsForMachineVision"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Libraries
+
+```{r libs}
+library(readxl)
+library(PMCMRplus)
+```
+
+## Import data
+
+Firs we import our data. 
+
+```{r importdata}
+data <- read_excel("metrics.xlsx")
+data$test <- as.factor(data$test)
+data$approach <- as.factor(data$approach)
+summary(data)
+```
+
+## Normality tests
+We carry normality tests. Shapiro Wilk's test was used due to the small sample size. The null hypothesis for this test is that the sample distribution is normal.
+
+```{r norm}
+accuracy <- shapiro.test(data$accuracy)
+mae <- shapiro.test(data$mae)
+time <- shapiro.test(data$time)
+
+print(accuracy)
+print(mae)
+print(time)
+```
+
+## t-test and Wilcoxon
+We apply t-test for accuracy as it comes from a normal distribution, and Wilcoxon for Mean Absolute Error (MAE) and Execution Time (time) as they rejected the null hypothesis.
+
+```{r t_wilcox}
+
+t_accuracy <- t.test(data$accuracy ~ data$approach)
+wilcox_mae <- wilcox.test(data$mae ~ data$approach )
+wilcox_time <- wilcox.test(data$time ~ data$approach )
+
+print(t_accuracy)
+print(wilcox_mae)
+print(wilcox_time)
+```
+
+## Summary
+
+According to the above:
+
+- There is no difference in the Accuracy between the traditional and the machine learning approach (i.e., the t-test failed to reject the null hypothesis).
+- There is significant difference in the Mean Absolute Error (MAE) between the traditional and the machine learning approach (i.e., the Wilcoxon test rejected the null hypothesis).
+- There is no difference in the Execution Time between the traditional and the machine learning approach (i.e., the Wilcoxon test failed to reject the null hypothesis).
